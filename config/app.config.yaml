@@ -1,0 +1,47 @@
+# Customize your inventory system without changing code.
+# Override any value via environment variables in .env
+
+app:
+  name: "Inventory Management"
+  company: "Your Company Name"
+  tagline: "Track stock, orders, and fulfillment in one place"
+  primary_color: "#2563eb"
+  currency: "INR"
+  timezone: "Asia/Kolkata"
+  logo_url: ""
+
+features:
+  barcode: true
+  purchase_orders: true
+  sales_orders: true
+  reports: true
+  multi_location: true
+  user_roles: true
+
+roles:
+  - admin
+  - warehouse_manager
+  - purchasing
+  - sales
+  - viewer
+
+order_statuses:
+  purchase_order:
+    - draft
+    - approved
+    - ordered
+    - partially_received
+    - received
+    - cancelled
+  sales_order:
+    - draft
+    - confirmed
+    - picking
+    - packed
+    - shipped
+    - delivered
+    - cancelled
+
+stock:
+  low_stock_threshold: 10
+  enable_reservations: true
