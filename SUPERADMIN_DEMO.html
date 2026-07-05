@@ -1,0 +1,974 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SuperAdmin System Demo - Inventory Management</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .demo-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 1200px) {
+            .demo-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .section {
+            margin-bottom: 15px;
+        }
+
+        .label {
+            font-weight: 600;
+            color: #333;
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+            font-family: inherit;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            margin-right: 10px;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+        }
+
+        .btn-success {
+            background: #28a745;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+        }
+
+        .btn-warning {
+            background: #ffc107;
+            color: #333;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-top: 5px;
+        }
+
+        .status-locked {
+            background: #dc3545;
+            color: white;
+        }
+
+        .status-unlocked {
+            background: #28a745;
+            color: white;
+        }
+
+        .status-pending {
+            background: #ffc107;
+            color: #333;
+        }
+
+        .status-approved {
+            background: #28a745;
+            color: white;
+        }
+
+        .status-rejected {
+            background: #dc3545;
+            color: white;
+        }
+
+        .flow-diagram {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border-left: 4px solid #667eea;
+        }
+
+        .flow-step {
+            margin: 12px 0;
+            padding: 10px;
+            background: white;
+            border-radius: 6px;
+            padding-left: 15px;
+            border-left: 3px solid #667eea;
+        }
+
+        .flow-step.success {
+            border-left-color: #28a745;
+        }
+
+        .flow-step.error {
+            border-left-color: #dc3545;
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+            margin-top: 15px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        th {
+            background: #f8f9fa;
+            padding: 12px;
+            text-align: left;
+            border-bottom: 2px solid #dee2e6;
+            font-weight: 600;
+            color: #333;
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        tr:hover {
+            background: #f8f9fa;
+        }
+
+        .output-box {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 15px;
+            border: 2px solid #e0e0e0;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: 'Monaco', 'Courier New', monospace;
+            font-size: 12px;
+        }
+
+        .log-entry {
+            padding: 8px;
+            margin: 5px 0;
+            border-radius: 4px;
+            background: white;
+            border-left: 3px solid #667eea;
+        }
+
+        .log-entry.success {
+            border-left-color: #28a745;
+            color: #28a745;
+        }
+
+        .log-entry.error {
+            border-left-color: #dc3545;
+            color: #dc3545;
+        }
+
+        .log-entry.warning {
+            border-left-color: #ffc107;
+            color: #856404;
+        }
+
+        .info-box {
+            background: #e7f3ff;
+            border: 2px solid #2196F3;
+            border-radius: 6px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+
+        .info-box strong {
+            color: #2196F3;
+        }
+
+        .user-list {
+            list-style: none;
+        }
+
+        .user-item {
+            background: #f8f9fa;
+            padding: 12px;
+            margin: 8px 0;
+            border-radius: 6px;
+            border-left: 4px solid #667eea;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .user-info {
+            flex: 1;
+        }
+
+        .user-email {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .user-role {
+            font-size: 12px;
+            color: #666;
+            margin-top: 4px;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 5px;
+        }
+
+        .action-buttons button {
+            margin: 0;
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+
+        .api-endpoint {
+            background: #f5f5f5;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+            font-family: 'Monaco', monospace;
+            font-size: 12px;
+            color: #333;
+            overflow-x: auto;
+        }
+
+        .method {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 3px;
+            font-weight: 600;
+            font-size: 11px;
+            margin-right: 8px;
+        }
+
+        .method.post {
+            background: #28a745;
+            color: white;
+        }
+
+        .method.get {
+            background: #007bff;
+            color: white;
+        }
+
+        .method.put {
+            background: #ffc107;
+            color: #333;
+        }
+
+        .divider {
+            height: 2px;
+            background: #e0e0e0;
+            margin: 30px 0;
+            border-radius: 1px;
+        }
+
+        .code-block {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 15px;
+            border-radius: 6px;
+            overflow-x: auto;
+            margin: 10px 0;
+            font-family: 'Monaco', monospace;
+            font-size: 12px;
+            line-height: 1.6;
+        }
+
+        .key {
+            color: #66d9ef;
+        }
+
+        .string {
+            color: #e6db74;
+        }
+
+        .number {
+            color: #ae81ff;
+        }
+
+        .boolean {
+            color: #a1efe4;
+        }
+
+        footer {
+            text-align: center;
+            color: white;
+            margin-top: 40px;
+            padding: 20px;
+            background: rgba(0,0,0,0.1);
+            border-radius: 8px;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔐 SuperAdmin System Demo</h1>
+
+        <div class="demo-grid">
+            <!-- LEFT SIDE: System Status & Controls -->
+            <div class="card">
+                <h2>⚙️ System Status & Controls</h2>
+
+                <div class="section">
+                    <label class="label">Current System Status:</label>
+                    <div id="systemStatus" class="status-badge status-unlocked">System: UNLOCKED</div>
+                    <div style="margin-top: 10px; font-size: 14px; color: #666;">
+                        <strong>Locked By:</strong> <span id="lockedBy">None</span><br>
+                        <strong>Reason:</strong> <span id="lockReason">N/A</span><br>
+                        <strong>Locked At:</strong> <span id="lockedAt">N/A</span>
+                    </div>
+                </div>
+
+                <div class="divider"></div>
+
+                <div class="section">
+                    <label class="label">🔒 Lock System</label>
+                    <textarea id="lockReason" placeholder="Enter reason for locking system" rows="3"></textarea>
+                    <button class="btn-danger" onclick="lockSystem()">Lock System</button>
+                </div>
+
+                <div class="section">
+                    <label class="label">🔓 Unlock System</label>
+                    <button class="btn-success" onclick="unlockSystem()">Unlock System</button>
+                </div>
+
+                <div class="divider"></div>
+
+                <div class="section">
+                    <label class="label">SuperAdmin Account</label>
+                    <div class="info-box">
+                        <strong>Email:</strong> superadmin@company.com<br>
+                        <strong>Password:</strong> superadmin123<br>
+                        <strong>Role:</strong> superadmin<br>
+                        <strong>Status:</strong> <span class="status-badge status-approved">ACTIVE</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RIGHT SIDE: User Approval Management -->
+            <div class="card">
+                <h2>👥 User Approval Management</h2>
+
+                <div class="section">
+                    <label class="label">Create New User</label>
+                    <input type="email" id="newUserEmail" placeholder="user@company.com">
+                    <input type="text" id="newUserName" placeholder="Full Name">
+                    <select id="newUserRole">
+                        <option value="viewer">Viewer</option>
+                        <option value="warehouse_manager">Warehouse Manager</option>
+                        <option value="purchasing">Purchasing</option>
+                        <option value="sales">Sales</option>
+                        <option value="admin">Admin</option>
+                    </select>
+                    <button class="btn-success" onclick="createUser()">Create User</button>
+                </div>
+
+                <div class="divider"></div>
+
+                <div class="section">
+                    <label class="label">Pending User Approvals</label>
+                    <ul id="pendingUsers" class="user-list">
+                        <li class="user-item">
+                            <div class="user-info">
+                                <div class="user-email">No pending users</div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="divider"></div>
+
+                <div class="section">
+                    <label class="label">All Users</label>
+                    <ul id="allUsers" class="user-list">
+                        <li class="user-item">
+                            <div class="user-info">
+                                <div class="user-email">superadmin@company.com</div>
+                                <div class="user-role">superadmin • ACTIVE</div>
+                            </div>
+                            <span class="status-badge status-approved">APPROVED</span>
+                        </li>
+                        <li class="user-item">
+                            <div class="user-info">
+                                <div class="user-email">admin@company.com</div>
+                                <div class="user-role">admin • ACTIVE</div>
+                            </div>
+                            <span class="status-badge status-approved">APPROVED</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Authentication Flow Section -->
+        <div class="card">
+            <h2>🔑 Authentication Flow</h2>
+            <p style="margin-bottom: 15px; color: #666;">When a user tries to login, the system performs these checks in order:</p>
+            
+            <div class="flow-diagram">
+                <div class="flow-step">
+                    <strong>1. Validate Credentials</strong><br>
+                    Check email and password against database
+                </div>
+                <div class="flow-step">
+                    <strong>2. Check System Lock Status</strong><br>
+                    Is <code>system_status.is_locked == true</code>?
+                </div>
+                <div class="flow-step">
+                    <strong>3. Check User Role</strong><br>
+                    If system is locked:
+                    <ul style="margin-top: 8px; margin-left: 20px;">
+                        <li><strong>✓ SuperAdmin?</strong> → Grant full access (bypass approval)</li>
+                        <li><strong>✗ Other role?</strong> → Go to Step 4</li>
+                    </ul>
+                </div>
+                <div class="flow-step">
+                    <strong>4. Check User Approval Status</strong><br>
+                    Look up <code>user_approvals</code> table for this user
+                </div>
+                <div class="flow-step">
+                    <strong>5. Grant or Deny Access</strong><br>
+                    <ul style="margin-top: 8px; margin-left: 20px;">
+                        <li><strong>Status = approved:</strong> Grant token & access</li>
+                        <li><strong>Status = pending:</strong> Deny (waiting for superadmin)</li>
+                        <li><strong>Status = rejected:</strong> Deny (contact superadmin)</li>
+                    </ul>
+                </div>
+            </div>
+
+            <p style="margin-top: 20px; color: #666; background: #e7f3ff; padding: 12px; border-radius: 6px;">
+                <strong>💡 Key Point:</strong> The system lock applies to all users EXCEPT the superadmin. 
+                This gives the superadmin complete control to grant/deny access to other users.
+            </p>
+        </div>
+
+        <!-- API Endpoints Section -->
+        <div class="card">
+            <h2>📡 API Endpoints</h2>
+
+            <div class="section">
+                <label class="label" style="margin-bottom: 15px;">SuperAdmin System Endpoints</label>
+
+                <div style="margin-bottom: 20px;">
+                    <div class="api-endpoint">
+                        <span class="method post">POST</span>/api/system/lock
+                    </div>
+                    <div class="code-block">
+{
+  <span class="key">"reason"</span>: <span class="string">"Scheduled maintenance"</span>
+}
+                    </div>
+                    <p style="margin-top: 10px; color: #666; font-size: 12px;">Lock system, no one except superadmin can login</p>
+                </div>
+
+                <div style="margin-bottom: 20px;">
+                    <div class="api-endpoint">
+                        <span class="method post">POST</span>/api/system/unlock
+                    </div>
+                    <p style="margin-top: 10px; color: #666; font-size: 12px;">Unlock system, allow approved users to login</p>
+                </div>
+
+                <div style="margin-bottom: 20px;">
+                    <div class="api-endpoint">
+                        <span class="method get">GET</span>/api/system/status
+                    </div>
+                    <div class="code-block">
+{
+  <span class="key">"is_locked"</span>: <span class="boolean">true</span>,
+  <span class="key">"locked_by_id"</span>: <span class="number">1</span>,
+  <span class="key">"locked_reason"</span>: <span class="string">"Scheduled maintenance"</span>,
+  <span class="key">"locked_at"</span>: <span class="string">"2024-01-15T10:30:00Z"</span>
+}
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 20px;">
+                    <div class="api-endpoint">
+                        <span class="method post">POST</span>/api/users/{id}/approve
+                    </div>
+                    <div class="code-block">
+{
+  <span class="key">"status"</span>: <span class="string">"approved"</span>
+}
+                    </div>
+                    <p style="margin-top: 10px; color: #666; font-size: 12px;">SuperAdmin approves a user to access the system</p>
+                </div>
+
+                <div style="margin-bottom: 20px;">
+                    <div class="api-endpoint">
+                        <span class="method post">POST</span>/api/users/{id}/reject
+                    </div>
+                    <div class="code-block">
+{
+  <span class="key">"reason"</span>: <span class="string">"Insufficient credentials"</span>
+}
+                    </div>
+                    <p style="margin-top: 10px; color: #666; font-size: 12px;">SuperAdmin rejects a user's access request</p>
+                </div>
+
+                <div style="margin-bottom: 20px;">
+                    <div class="api-endpoint">
+                        <span class="method get">GET</span>/api/users/pending-approvals
+                    </div>
+                    <p style="margin-top: 10px; color: #666; font-size: 12px;">List all users waiting for approval</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Database Models Section -->
+        <div class="card">
+            <h2>🗄️ Database Models</h2>
+
+            <div class="section">
+                <label class="label">SystemStatus Table</label>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Column</th>
+                            <th>Type</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>id</strong></td>
+                            <td>Integer (PK)</td>
+                            <td>Primary key</td>
+                        </tr>
+                        <tr>
+                            <td><strong>is_locked</strong></td>
+                            <td>Boolean</td>
+                            <td>Whether system is locked</td>
+                        </tr>
+                        <tr>
+                            <td><strong>locked_by_id</strong></td>
+                            <td>Foreign Key</td>
+                            <td>SuperAdmin user who locked it</td>
+                        </tr>
+                        <tr>
+                            <td><strong>locked_reason</strong></td>
+                            <td>Text</td>
+                            <td>Why system was locked</td>
+                        </tr>
+                        <tr>
+                            <td><strong>locked_at</strong></td>
+                            <td>DateTime</td>
+                            <td>When system was locked</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="section">
+                <label class="label">UserApproval Table</label>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Column</th>
+                            <th>Type</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>id</strong></td>
+                            <td>Integer (PK)</td>
+                            <td>Primary key</td>
+                        </tr>
+                        <tr>
+                            <td><strong>user_id</strong></td>
+                            <td>Foreign Key</td>
+                            <td>User to approve (UNIQUE)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>status</strong></td>
+                            <td>String</td>
+                            <td>pending | approved | rejected</td>
+                        </tr>
+                        <tr>
+                            <td><strong>approved_by_id</strong></td>
+                            <td>Foreign Key</td>
+                            <td>SuperAdmin who approved</td>
+                        </tr>
+                        <tr>
+                            <td><strong>approved_at</strong></td>
+                            <td>DateTime</td>
+                            <td>When approved</td>
+                        </tr>
+                        <tr>
+                            <td><strong>rejection_reason</strong></td>
+                            <td>Text</td>
+                            <td>Why rejected (if applicable)</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="section">
+                <label class="label">User Table Changes</label>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Change</th>
+                            <th>Details</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>New UserRole: SUPERADMIN</strong></td>
+                            <td>Enum value added to UserRole enum</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Relationship to UserApproval</strong></td>
+                            <td>One-to-one relationship (one user has one approval record)</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Authentication Logic Section -->
+        <div class="card">
+            <h2>🔐 Authentication Logic</h2>
+
+            <div class="info-box">
+                <strong>Updated get_current_user() function:</strong>
+                <div class="code-block" style="margin-top: 10px;">
+def get_current_user(token, db):
+    # Decode JWT token
+    user = get_user_from_token(token, db)
+    
+    # Check if system is locked
+    system_status = db.query(SystemStatus).first()
+    if system_status.is_locked:
+        # SuperAdmin bypasses lock
+        if user.role == "superadmin":
+            return user
+        
+        # Other users: denied
+        raise HTTPException(403, "System is locked. Contact superadmin.")
+    
+    # System unlocked: check approval status
+    approval = db.query(UserApproval).filter_by(user_id=user.id).first()
+    
+    if not approval or approval.status != "approved":
+        raise HTTPException(403, "Awaiting superadmin approval")
+    
+    return user
+                </div>
+            </div>
+
+            <div style="margin-top: 20px;">
+                <label class="label">Key Security Features:</label>
+                <ul style="margin-left: 20px; line-height: 1.8;">
+                    <li>✓ SuperAdmin account cannot be locked out or rejected</li>
+                    <li>✓ Only superadmin can approve/reject users</li>
+                    <li>✓ All actions are audited (approved_by_id, approved_at)</li>
+                    <li>✓ Rejection reasons are logged for transparency</li>
+                    <li>✓ System lock reason is recorded</li>
+                    <li>✓ Superadmin account created during initial seed with pre-set credentials</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Activity Log Section -->
+        <div class="card">
+            <h2>📋 Activity Log</h2>
+            <div id="activityLog" class="output-box">
+                <div class="log-entry warning">[INIT] System initialized</div>
+                <div class="log-entry warning">[INIT] SuperAdmin account created: superadmin@company.com</div>
+            </div>
+        </div>
+
+        <!-- Implementation Checklist -->
+        <div class="card">
+            <h2>✅ Implementation Checklist</h2>
+            <div style="line-height: 2;">
+                <label style="display: flex; align-items: center; margin: 10px 0; cursor: pointer;">
+                    <input type="checkbox" checked disabled style="width: auto; margin-right: 10px;">
+                    Updated models.py with SUPERADMIN role, SystemStatus, UserApproval
+                </label>
+                <label style="display: flex; align-items: center; margin: 10px 0; cursor: pointer;">
+                    <input type="checkbox" disabled style="width: auto; margin-right: 10px;">
+                    Update auth.py with system lock check in get_current_user()
+                </label>
+                <label style="display: flex; align-items: center; margin: 10px 0; cursor: pointer;">
+                    <input type="checkbox" disabled style="width: auto; margin-right: 10px;">
+                    Create routers/system.py for lock/unlock endpoints
+                </label>
+                <label style="display: flex; align-items: center; margin: 10px 0; cursor: pointer;">
+                    <input type="checkbox" disabled style="width: auto; margin-right: 10px;">
+                    Update routers/auth.py with approve/reject endpoints
+                </label>
+                <label style="display: flex; align-items: center; margin: 10px 0; cursor: pointer;">
+                    <input type="checkbox" disabled style="width: auto; margin-right: 10px;">
+                    Update auth.py ROLE_PERMISSIONS to include superadmin
+                </label>
+                <label style="display: flex; align-items: center; margin: 10px 0; cursor: pointer;">
+                    <input type="checkbox" disabled style="width: auto; margin-right: 10px;">
+                    Update seed.py to create superadmin account
+                </label>
+                <label style="display: flex; align-items: center; margin: 10px 0; cursor: pointer;">
+                    <input type="checkbox" disabled style="width: auto; margin-right: 10px;">
+                    Create database migrations with Alembic
+                </label>
+                <label style="display: flex; align-items: center; margin: 10px 0; cursor: pointer;">
+                    <input type="checkbox" disabled style="width: auto; margin-right: 10px;">
+                    Update frontend to show pending approvals
+                </label>
+                <label style="display: flex; align-items: center; margin: 10px 0; cursor: pointer;">
+                    <input type="checkbox" disabled style="width: auto; margin-right: 10px;">
+                    Add error messages for locked system / pending approval
+                </label>
+            </div>
+        </div>
+
+        <footer>
+            <p>SuperAdmin System Demo | Inventory Management v1.0</p>
+            <p style="margin-top: 10px; font-size: 12px; opacity: 0.8;">This demo shows how the SuperAdmin lock system works. No real data is modified.</p>
+        </footer>
+    </div>
+
+    <script>
+        // Demo data
+        let systemState = {
+            isLocked: false,
+            lockedBy: null,
+            lockedReason: null,
+            lockedAt: null
+        };
+
+        let users = [
+            { id: 1, email: 'superadmin@company.com', name: 'Super Admin', role: 'superadmin', status: 'approved' },
+            { id: 2, email: 'admin@company.com', name: 'Admin', role: 'admin', status: 'approved' }
+        ];
+
+        let pendingUsers = [];
+
+        function log(message, type = 'info') {
+            const logBox = document.getElementById('activityLog');
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${type}`;
+            const time = new Date().toLocaleTimeString();
+            entry.textContent = `[${time}] ${message}`;
+            logBox.appendChild(entry);
+            logBox.scrollTop = logBox.scrollHeight;
+        }
+
+        function updateUI() {
+            // Update system status
+            const badge = document.getElementById('systemStatus');
+            if (systemState.isLocked) {
+                badge.className = 'status-badge status-locked';
+                badge.textContent = 'System: LOCKED 🔒';
+            } else {
+                badge.className = 'status-badge status-unlocked';
+                badge.textContent = 'System: UNLOCKED 🔓';
+            }
+
+            document.getElementById('lockedBy').textContent = systemState.lockedBy || 'None';
+            document.getElementById('lockReason').textContent = systemState.lockedReason || 'N/A';
+            document.getElementById('lockedAt').textContent = systemState.lockedAt || 'N/A';
+
+            // Update user lists
+            updateUserLists();
+        }
+
+        function lockSystem() {
+            const reason = document.getElementById('lockReason').value || 'System maintenance';
+            systemState.isLocked = true;
+            systemState.lockedBy = 'superadmin@company.com';
+            systemState.lockedReason = reason;
+            systemState.lockedAt = new Date().toLocaleString();
+            updateUI();
+            log(`🔒 System LOCKED by SuperAdmin. Reason: "${reason}"`, 'error');
+            log('⚠️ All non-superadmin users are now LOCKED OUT', 'error');
+        }
+
+        function unlockSystem() {
+            systemState.isLocked = false;
+            systemState.lockedBy = null;
+            systemState.lockedReason = null;
+            systemState.lockedAt = null;
+            updateUI();
+            log('🔓 System UNLOCKED by SuperAdmin', 'success');
+            log('✓ Approved users can now login', 'success');
+        }
+
+        function createUser() {
+            const email = document.getElementById('newUserEmail').value;
+            const name = document.getElementById('newUserName').value;
+            const role = document.getElementById('newUserRole').value;
+
+            if (!email || !name) {
+                alert('Please fill in all fields');
+                return;
+            }
+
+            const newUser = {
+                id: Math.max(...users.map(u => u.id), ...pendingUsers.map(u => u.id)) + 1,
+                email,
+                name,
+                role,
+                status: 'pending'
+            };
+
+            pendingUsers.push(newUser);
+            updateUI();
+            log(`👤 New user created: ${email} (${role}) - PENDING APPROVAL`, 'warning');
+
+            document.getElementById('newUserEmail').value = '';
+            document.getElementById('newUserName').value = '';
+            document.getElementById('newUserRole').value = 'viewer';
+        }
+
+        function approveUser(userId) {
+            const user = pendingUsers.find(u => u.id === userId);
+            if (user) {
+                user.status = 'approved';
+                users.push(user);
+                pendingUsers = pendingUsers.filter(u => u.id !== userId);
+                updateUI();
+                log(`✅ User APPROVED: ${user.email}`, 'success');
+            }
+        }
+
+        function rejectUser(userId) {
+            const user = pendingUsers.find(u => u.id === userId);
+            if (user) {
+                pendingUsers = pendingUsers.filter(u => u.id !== userId);
+                updateUI();
+                log(`❌ User REJECTED: ${user.email}`, 'error');
+            }
+        }
+
+        function updateUserLists() {
+            // Pending users
+            const pendingList = document.getElementById('pendingUsers');
+            if (pendingUsers.length === 0) {
+                pendingList.innerHTML = '<li class="user-item"><div class="user-info"><div class="user-email">No pending users</div></div></li>';
+            } else {
+                pendingList.innerHTML = pendingUsers.map(u => `
+                    <li class="user-item">
+                        <div class="user-info">
+                            <div class="user-email">${u.email}</div>
+                            <div class="user-role">${u.name} • ${u.role}</div>
+                        </div>
+                        <div class="action-buttons">
+                            <button class="btn-success" onclick="approveUser(${u.id})">Approve</button>
+                            <button class="btn-danger" onclick="rejectUser(${u.id})">Reject</button>
+                        </div>
+                    </li>
+                `).join('');
+            }
+
+            // All users
+            const allList = document.getElementById('allUsers');
+            allList.innerHTML = users.map(u => `
+                <li class="user-item">
+                    <div class="user-info">
+                        <div class="user-email">${u.email}</div>
+                        <div class="user-role">${u.name} • ${u.role} • ACTIVE</div>
+                    </div>
+                    <span class="status-badge status-approved">${u.status.toUpperCase()}</span>
+                </li>
+            `).join('');
+        }
+
+        // Initialize UI on page load
+        updateUI();
+    </script>
+</body>
+</html>
