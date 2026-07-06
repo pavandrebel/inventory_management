@@ -17,7 +17,6 @@ from app.database import Base
 
 
 class UserRole(str, Enum):
-    SUPERADMIN = "superadmin"
     ADMIN = "admin"
     WAREHOUSE_MANAGER = "warehouse_manager"
     PURCHASING = "purchasing"
@@ -52,12 +51,6 @@ class MovementType(str, Enum):
     RESERVATION = "reservation"
 
 
-class ApprovalStatus(str, Enum):
-    PENDING = "pending"
-    APPROVED = "approved"
-    REJECTED = "rejected"
-
-
 class User(Base):
     __tablename__ = "users"
 
@@ -68,34 +61,6 @@ class User(Base):
     role: Mapped[str] = mapped_column(String(50), default=UserRole.VIEWER.value)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
-
-    approval: Mapped["UserApproval"] = relationship(back_populates="user", uselist=False, cascade="all, delete-orphan")
-
-
-class SystemStatus(Base):
-    __tablename__ = "system_status"
-
-    id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    is_locked: Mapped[bool] = mapped_column(Boolean, default=False)
-    locked_by_id: Mapped[int | None] = mapped_column(ForeignKey("users.id"), nullable=True)
-    locked_reason: Mapped[str | None] = mapped_column(Text, nullable=True)
-    locked_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
-    locked_by: Mapped["User"] = relationship()
-
-
-class UserApproval(Base):
-    __tablename__ = "user_approvals"
-
-    id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), unique=True, index=True)
-    status: Mapped[str] = mapped_column(String(50), default=ApprovalStatus.PENDING.value)
-    approved_by_id: Mapped[int | None] = mapped_column(ForeignKey("users.id"), nullable=True)
-    approved_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
-    rejection_reason: Mapped[str | None] = mapped_column(Text, nullable=True)
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
-
-    user: Mapped["User"] = relationship(back_populates="approval", foreign_keys=[user_id])
-    approved_by: Mapped["User"] = relationship(foreign_keys=[approved_by_id])
 
 
 class Location(Base):

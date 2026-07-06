@@ -39,27 +39,52 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-slate-100 p-4">
-      <div className="card w-full max-w-md">
-        <h1 className="text-2xl font-bold">{config?.app.name || "Inventory Management"}</h1>
-        <p className="mt-1 text-sm text-slate-500">
-          {config?.app.tagline || "Sign in to manage your inventory"}
-        </p>
-        <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-b from-purple-900 via-purple-800 to-purple-900 p-4">
+      <div className="card w-full max-w-md bg-white rounded-xl shadow-xl p-8 space-y-6">
+        {/* Logo / App Name */}
+        <div className="flex flex-col items-center">
+          {config?.app.logo_url ? (
+            <img src={config.app.logo_url} alt="Logo" className="h-12 w-auto mb-2" />
+          ) : (
+            <div className="text-4xl font-bold text-purple-600">📦</div>
+          )}
+          <h1 className="text-2xl font-bold text-gray-800">{config?.app.name || "Inventory Management"}</h1>
+          <p className="text-sm text-gray-500 text-center">{config?.app.tagline || "Sign in to manage your inventory"}</p>
+        </div>
+
+        {/* Form */}
+        <form onSubmit={handleSubmit} className="w-full space-y-4">
           <div>
-            <label className="mb-1 block text-sm font-medium">Email</label>
-            <input className="input" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+            <label className="mb-1 block text-sm font-medium text-gray-700">Email</label>
+            <input
+              className="input w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
           </div>
           <div>
-            <label className="mb-1 block text-sm font-medium">Password</label>
-            <input className="input" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
+            <label className="mb-1 block text-sm font-medium text-gray-700">Password</label>
+            <input
+              className="input w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
           </div>
           {error && <p className="text-sm text-red-600">{error}</p>}
-          <button className="btn-primary w-full" disabled={loading}>
+          <button
+            className="btn-primary w-full px-4 py-2 bg-purple-600 text-white font-medium rounded-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 disabled:opacity-50"
+            disabled={loading}
+          >
             {loading ? "Signing in..." : "Sign in"}
           </button>
         </form>
-        <p className="mt-4 text-xs text-slate-500">
+
+        {/* Footer note */}
+        <p className="text-xs text-gray-400 text-center">
           Default admin: admin@company.com / admin123
         </p>
       </div>
